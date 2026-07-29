@@ -1,2 +1,0 @@
-# kANSECEXEAT
-Kansec exeat system
