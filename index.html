@@ -1,3 +1,15 @@
+<script>
+  window.addEventListener('error', function(e){
+    var box = document.getElementById('debug-error-box');
+    if(!box){
+      box = document.createElement('div');
+      box.id = 'debug-error-box';
+      box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#8b3a3a;color:#fff;padding:12px;font-family:monospace;font-size:12px;z-index:9999;white-space:pre-wrap;';
+      document.body.prepend(box);
+    }
+    box.textContent += 'ERROR: ' + e.message + ' (line ' + e.lineno + ')\n';
+  });
+</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
