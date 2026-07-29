@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1f3b2c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KSHS Exeat">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>Kanton SHS Exeat Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --ink:#20261f;
+    --ink-soft:#3a4136;
+    --paper:#efe8d8;
+    --paper-deep:#e4dac4;
+    --card:#f7f2e5;
+    --green:#1f3b2c;
+    --green-deep:#14261b;
+    --green-line:rgba(31,59,44,0.18);
+    --brass:#b4863a;
+    --brass-deep:#8c6526;
+    --red:#8b3a3a;
+    --red-deep:#6e2c2c;
+    --blue:#2f4d73;
+    --blue-deep:#243c5c;
+    --line:rgba(32,38,31,0.16);
+    --shadow: 0 1px 2px rgba(20,38,27,0.08), 0 6px 18px -8px rgba(20,38,27,0.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(180,134,58,0.06), transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:28px 16px 80px;
+  }
+  .wrap{max-width:960px;margin:0 auto;}
+
+  /* ---- Header ---- */
+  .letterhead{
+    display:flex;align-items:flex-start;gap:16px;
+    padding-bottom:20px;margin-bottom:22px;
+    border-bottom:2px solid var(--green);
+  }
+  .crest{
+    width:52px;height:52px;flex:none;object-fit:contain;
+  }
+  .brandtext{flex:1;}
+  .brandtext h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:26px;
+    letter-spacing:0.01em;
+    margin:0;
+    color:var(--green-deep);
+  }
+  .brandtext p{
+    margin:2px 0 0;
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--brass-deep);
+    font-weight:600;
+  }
+  .bell-btn{
+    position:relative;
+    background:var(--card);border:1px solid var(--green-line);
+    border-radius:50%;width:40px;height:40px;flex:none;
+    cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;
+  }
+  .bell-dot{
+    position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;
+    font-size:10px;font-weight:700;border-radius:20px;min-width:16px;height:16px;
+    display:flex;align-items:center;justify-content:center;padding:0 3px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .notif-panel{
+    background:var(--card);border:1px solid var(--green-line);border-radius:10px;
+    padding:8px 0;margin:-8px 0 20px;box-shadow:var(--shadow);max-height:280px;overflow:auto;
+  }
+  .notif-item{padding:9px 16px;border-bottom:1px solid var(--line);font-size:13px;}
+  .notif-item:last-child{border-bottom:none;}
+  .notif-item .t{display:block;color:var(--ink-soft);font-size:11px;margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+  .notif-empty{padding:16px;text-align:center;color:var(--ink-soft);font-size:13px;}
+
+  /* ---- Role tabs (folder tabs) ---- */
+  .tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap;}
+  .tab{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.03em;
+    padding:9px 16px 8px;
+    background:var(--paper-deep);
+    color:var(--ink-soft);
+    border:1px solid var(--line);
+    border-bottom:none;
+    border-radius:8px 8px 0 0;
+    cursor:pointer;
+    position:relative;
+    top:1px;
+  }
+  .tab.active{
+    background:var(--card);
+    color:var(--green-deep);
+    font-weight:600;
+    border-color:var(--green-line);
+    box-shadow:0 -2px 0 var(--brass) inset;
+  }
+  .panel{
+    background:var(--card);
+    border:1px solid var(--green-line);
+    border-radius:2px 10px 10px 10px;
+    padding:22px;
+    box-shadow:var(--shadow);
+  }
+
+  h2.section-title{
+    font-family:'Fraunces',serif;
+    font-size:18px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--green-deep);
+  }
+  .section-sub{
+    font-size:12.5px;color:var(--ink-soft);margin:0 0 18px;
+  }
+
+  /* ---- Form ---- */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field.full{grid-column:1/-1;}
+  label{font-size:11.5px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-soft);}
+  input,select,textarea{
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:9px 10px;
+    border:1px solid var(--green-line);
+    border-radius:6px;
+    background:#fff;
+    color:var(--ink);
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:2px solid var(--brass);outline-offset:1px;
+  }
+  textarea{resize:vertical;min-height:56px;font-family:'Inter',sans-serif;}
+  .btn{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px 18px;
+    border-radius:7px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--green);color:#fff;}
+  .btn-primary:hover{background:var(--green-deep);}
+  .btn-approve{background:#e9f1e9;color:var(--green-deep);border-color:var(--green-line);}
+  .btn-approve:hover{background:#dcebdc;}
+  .btn-deny{background:#f6e9e9;color:var(--red-deep);border-color:rgba(139,58,58,0.25);}
+  .btn-deny:hover{background:#f0dcdc;}
+  .btn-info{background:#eaf0f7;color:var(--blue-deep);border-color:rgba(47,77,115,0.25);}
+  .btn-info:hover{background:#dde9f4;}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border-color:var(--line);}
+  .btn-sm{padding:6px 12px;font-size:12.5px;}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px;margin-top:4px;flex-wrap:wrap;}
+
+  /* ---- Ledger of passes ---- */
+  .ledger{display:flex;flex-direction:column;gap:16px;margin-top:4px;}
+  .pass{
+    position:relative;
+    background:#fff;
+    border:1px solid var(--green-line);
+    border-radius:10px;
+    padding:18px 20px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px 20px;
+    overflow:hidden;
+  }
+  .pass::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:6px;
+    background:var(--brass);
+  }
+  .pass.status-out::before{background:var(--green);}
+  .pass.status-denied::before{background:var(--red);}
+  .pass.status-returned::before{background:var(--ink-soft);}
+  .pass.status-pending-admin::before{background:var(--blue);}
+
+  .pass-no{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--brass-deep);
+    letter-spacing:0.05em;
+  }
+  .pass-name{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:18px;
+    color:var(--green-deep);
+    margin:2px 0 0;
+  }
+  .pass-meta{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .pass-detail{font-size:13.5px;margin-top:10px;line-height:1.5;}
+  .pass-times{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    margin-top:8px;
+    color:var(--ink-soft);
+    display:flex;gap:18px;flex-wrap:wrap;
+  }
+  .pass-times b{color:var(--ink);}
+  .pass-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;justify-content:space-between;}
+  .pass-actions .btnrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+  .staff-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 20px;}
+
+  .badge{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+    padding:3px 8px;border-radius:20px;
+    background:var(--paper-deep);color:var(--ink-soft);
+    border:1px solid var(--line);
+    display:inline-block;
+  }
+  .badge-cat{background:#eef2ea;color:var(--green-deep);border-color:var(--green-line);}
+  .badge-overdue{background:#f6e9e9;color:var(--red-deep);border-color:rgba(139,58,58,0.3);font-weight:700;}
+  .badge-escalated{background:#fbeedd;color:var(--brass-deep);border-color:rgba(180,134,58,0.4);font-weight:700;}
+  .pass-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+
+  /* Stamp */
+  .stamp{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:8px 6px;
+    border:2.5px solid currentColor;
+    border-radius:50%;
+    width:76px;height:76px;
+    display:flex;align-items:center;justify-content:center;
+    text-align:center;
+    transform:rotate(-9deg);
+    line-height:1.15;
+    animation:stampdown .35s cubic-bezier(.2,1.4,.5,1);
+  }
+  @keyframes stampdown{
+    0%{transform:rotate(-9deg) scale(2.2);opacity:0;}
+    60%{opacity:1;}
+    100%{transform:rotate(-9deg) scale(1);opacity:1;}
+  }
+  .stamp.pending{color:var(--brass-deep);border-style:dashed;}
+  .stamp.pending-admin{color:var(--blue-deep);border-style:dashed;}
+  .stamp.approved{color:var(--green);}
+  .stamp.denied{color:var(--red);}
+  .stamp.out{color:var(--green);background:rgba(31,59,44,0.06);}
+  .stamp.returned{color:var(--ink-soft);}
+
+  .empty{
+    text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:14px;
+  }
+  .empty b{display:block;font-family:'Fraunces',serif;font-size:17px;color:var(--green-deep);margin-bottom:4px;}
+
+  .whoami{
+    display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;
+  }
+  .whoami input{max-width:220px;}
+  .deny-reason{
+    font-size:12.5px;color:var(--red-deep);margin-top:6px;font-style:italic;
+  }
+  .info-note{font-size:12.5px;color:var(--blue-deep);margin-top:6px;font-style:italic;}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:var(--green-deep);color:#fff;font-size:13px;
+    padding:10px 20px;border-radius:8px;box-shadow:var(--shadow);
+    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
+    max-width:88vw;text-align:center;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+  .limit-box{
+    background:var(--paper-deep);border:1px solid var(--line);border-radius:8px;
+    padding:10px 14px;font-size:12.5px;margin-bottom:16px;color:var(--ink-soft);
+  }
+  .limit-box b{color:var(--ink);}
+  .warn-box{
+    background:#f6e9e9;border:1px solid rgba(139,58,58,0.3);border-radius:8px;
+    padding:10px 14px;font-size:12.5px;margin-bottom:16px;color:var(--red-deep);
+  }
+  .cat-desc{font-size:12px;color:var(--ink-soft);margin-top:4px;font-style:italic;}
+
+  details.audit{margin-top:10px;font-size:12px;}
+  details.audit summary{cursor:pointer;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-size:11px;}
+  details.audit ul{margin:8px 0 0;padding-left:18px;color:var(--ink-soft);}
+  details.audit li{margin-bottom:3px;}
+
+  .photo-thumb{width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--green-line);margin-top:8px;}
+  .qr-box{margin-top:10px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
+  .qr-box .passid{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--brass-deep);letter-spacing:0.04em;}
+
+  /* ---- Admin: stats & filters ---- */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+  .stat-card{background:#fff;border:1px solid var(--green-line);border-radius:8px;padding:12px 14px;}
+  .stat-card .num{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--green-deep);}
+  .stat-card .lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-soft);}
+  .bar-row{display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:6px;}
+  .bar-row .name{width:110px;flex:none;color:var(--ink-soft);}
+  .bar-track{flex:1;background:var(--paper-deep);border-radius:6px;height:14px;overflow:hidden;}
+  .bar-fill{background:var(--brass);height:100%;border-radius:6px;}
+  .bar-row .n{width:28px;flex:none;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  .filter-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+  .section-block{margin-top:32px;padding-top:22px;border-top:1px dashed var(--green-line);}
+  .account-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;flex-wrap:wrap;}
+  .account-row:last-child{border-bottom:none;}
+  .mustchange{color:var(--red-deep);font-size:11px;font-weight:700;}
+  .tmpl-box{background:#fff;border:1px solid var(--green-line);border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:12.5px;}
+  .tmpl-box b{display:block;font-size:11px;text-transform:uppercase;color:var(--brass-deep);margin-bottom:3px;}
+
+  @media (max-width:600px){
+    .form-grid{grid-template-columns:1fr;}
+    .pass{grid-template-columns:1fr;}
+    .pass-actions{align-items:flex-start;flex-direction:row;justify-content:space-between;flex-wrap:wrap;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .stamp{animation:none;}
+  }
+  .conn-banner{
+    background:#f6e9e9;border:1px solid rgba(139,58,58,0.3);color:var(--red-deep);
+    font-size:12.5px;padding:10px 14px;border-radius:8px;margin:-8px 0 18px;
+  }
+  .conn-banner code{background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;}
+  .conn-ok{
+    background:#e9f1e9;border:1px solid var(--green-line);color:var(--green-deep);
+    font-size:11.5px;padding:6px 12px;border-radius:8px;margin:-8px 0 18px;display:inline-block;
+  }
+</style>
+</head>
+<body>
+<script>
+  window.addEventListener('error', function(e){
+    var box = document.getElementById('debug-error-box');
+    if(!box){
+      box = document.createElement('div');
+      box.id = 'debug-error-box';
+      box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#8b3a3a;color:#fff;padding:12px;font-family:monospace;font-size:12px;z-index:9999;white-space:pre-wrap;';
+      document.body.prepend(box);
+    }
+    box.textContent += 'ERROR: ' + e.message + ' (line ' + e.lineno + ')\n';
+  });
+</script>
+<div class="wrap">
+
+  <div class="letterhead">
+    <img class="crest" src="badge-header.png" alt="Kanton Senior High School badge">
+    <div class="brandtext">
+      <h1>Kanton Senior High School</h1>
+      <p>Tumu, UW/R · Exeat Register</p>
+    </div>
+    <button class="bell-btn" id="bell-btn" title="Notifications">🔔<span class="bell-dot" id="bell-dot" style="display:none;"></span></button>
+  </div>
+
+  <p style="font-size:12px;color:var(--ink-soft);margin:-10px 0 18px;">
+    Data on this device only — passes won't sync to other phones unless you connect a shared backend.
+  </p>
+
+  <div id="connection-banner"></div>
+  <div id="notif-panel"></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="panel" id="panel"></div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Kanton SHS Exeat Register — Supabase-backed client
+   Fill in SUPABASE_URL and SUPABASE_ANON_KEY below, then run
+   supabase/schema.sql against your project. See SETUP.md.
+   ============================================================ */
+const SUPABASE_URL = 'https://xsiotfuoadzzcbbyknsr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzaW90ZnVvYWR6emNiYnlrbnNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNjc1NTMsImV4cCI6MjEwMDg0MzU1M30.Qa48U44c6x0e2I5MF_Ub441QI7wOgoV4vOppUsnNMPA';
+
+const STAFF_ROLES = ['warden','admin','gate'];
+const HOUSES = ['Falcon','Eagle','Hawk','Osprey'];
+
+const CATEGORIES = [
+  {id:'day', label:'Day Exeat', requiresAdmin:false, exempt:false, skipParent:false,
+    desc:'Local, same-day trips. House warden approval only.'},
+  {id:'weekend', label:'Weekend Exeat', requiresAdmin:true, exempt:false, skipParent:false,
+    desc:'Overnight or off-campus. Needs house warden + admin sign-off.'},
+  {id:'medical', label:'Medical Exeat', requiresAdmin:true, exempt:true, skipParent:false,
+    desc:'Hospital/clinic visits. Exempt from the term limit. Needs admin sign-off.'},
+  {id:'emergency', label:'Emergency Exeat', requiresAdmin:true, exempt:true, skipParent:true,
+    desc:'Urgent family/medical emergencies. Skips the parent-confirmation step, exempt from the term limit, still needs admin sign-off.'},
+];
+
+const ROLES = [
+  {id:'student', label:'STUDENT'},
+  {id:'parent', label:'PARENT / GUARDIAN'},
+  {id:'warden', label:'HOUSE WARDEN'},
+  {id:'admin', label:'ADMIN'},
+  {id:'gate', label:'GATEKEEPER'},
+];
+
+const NOTIF_TEMPLATES = {
+  submitted: r=>`New ${categoryOf(r).label} request submitted for ${r.studentName} — destination: ${r.destination}. Awaiting your approval.`,
+  parentApproved: r=>`Parent/guardian approved ${r.studentName}'s exeat request. Now awaiting the house warden.`,
+  wardenApproved: r=>`House warden approved ${r.studentName}'s exeat (Pass No. ${pad(r.no)}).` + (requiresAdmin(r) ? ' Awaiting admin sign-off.' : ' Pass is ready — proceed to the gate.'),
+  adminApproved: r=>`Admin approved ${r.studentName}'s exeat. Pass No. ${pad(r.no)} is ready for the gate.`,
+  denied: r=>`${r.studentName}'s exeat request (Pass No. ${pad(r.no)}) was declined${r.denyReason ? ': "' + r.denyReason + '"' : '.'}`,
+  infoRequested: r=>`More information was requested on ${r.studentName}'s exeat (Pass No. ${pad(r.no)}): "${r.infoComment||''}"`,
+  signedOut: r=>`${r.studentName} signed out at the gate — Pass No. ${pad(r.no)}. Expected back ${fmtDateTime(r.returnDate,r.returnTime)}.`,
+  signedIn: r=>`${r.studentName} has returned to campus. Pass No. ${pad(r.no)} closed.`,
+  overdue: r=>`${r.studentName} is overdue for return (Pass No. ${pad(r.no)}, expected ${fmtDateTime(r.returnDate,r.returnTime)}).`,
+};
+
+/* ============================= supabase client ============================= */
+const configured = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON');
+const libLoaded = typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function';
+let libLoadError = false;
+let supabase = null;
+if(configured && libLoaded){
+  try{ supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+  catch(e){ libLoadError = true; }
+} else if(configured && !libLoaded){
+  libLoadError = true;
+}
+
+/* ============================= state ============================= */
+let requests = [];
+let staff = [];
+let config = {maxPerSemester:3, semesterStart:new Date().toISOString().slice(0,8)+'01', escalationHours:12, blackouts:[]};
+let notifications = [];
+
+let currentRole = 'student';
+let studentName = '';
+let parentChildFilter = '';
+let session = null; // {id, role, name, house, gatePost, accessToken}
+let loaded = false;
+let notifPanelOpen = false;
+let adminFilter = {name:'', house:'', status:'', category:'', from:'', to:''};
+
+/* ============================= tiny helpers ============================= */
+function pad(n){ return String(n||0).padStart(4,'0'); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function genId(prefix){ return prefix+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,8); }
+function genPassId(no){ return 'KSHS-'+pad(no)+'-'+Math.random().toString(36).slice(2,6).toUpperCase(); }
+function fmtDateTime(d,t){
+  if(!d) return '—';
+  try{
+    const dt = new Date(d+'T'+(t||'00:00'));
+    return dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' · ' + (t||'--:--');
+  }catch(e){ return d+' '+t; }
+}
+function fmtRelative(ts){
+  const mins = Math.round((Date.now()-ts)/60000);
+  if(mins < 1) return 'just now';
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.round(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  return Math.round(hrs/24)+'d ago';
+}
+function escapeHtml(str){
+  if(str===undefined||str===null) return '';
+  return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function csvEscape(val){
+  const s = (val===undefined||val===null) ? '' : String(val);
+  if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+function categoryOf(r){ return CATEGORIES.find(c=>c.id===r.category) || CATEGORIES[0]; }
+function requiresAdmin(r){ return categoryOf(r).requiresAdmin; }
+function isExempt(r){ return !!categoryOf(r).exempt; }
+
+/* ============================= db <-> client mapping ============================= */
+function toClientRequest(row, auditRows){
+  return {
+    id: row.id, no: row.no, passId: row.pass_id, category: row.category,
+    studentName: row.student_name, studentClass: row.student_class, house: row.house_id,
+    destination: row.destination, reason: row.reason,
+    departDate: row.depart_date, departTime: row.depart_time,
+    returnDate: row.return_date, returnTime: row.return_time,
+    parentContact: row.parent_contact, contactPerson: row.contact_person, transport: row.transport,
+    photoDataUrl: row.photo_url, adminOverrideRequested: row.admin_override_requested,
+    createdAt: new Date(row.created_at).getTime(),
+    parentApprovedAt: row.parent_approved_at ? new Date(row.parent_approved_at).getTime() : null,
+    parentAutoApproved: row.parent_auto_approved,
+    wardenApprovedAt: row.warden_approved_at ? new Date(row.warden_approved_at).getTime() : null,
+    wardenApprovedBy: row.warden_approved_by,
+    adminApprovedAt: row.admin_approved_at ? new Date(row.admin_approved_at).getTime() : null,
+    adminApprovedBy: row.admin_approved_by,
+    deniedAt: row.denied_at ? new Date(row.denied_at).getTime() : null,
+    deniedBy: row.denied_by, denyReason: row.deny_reason,
+    infoRequestedAt: row.info_requested_at ? new Date(row.info_requested_at).getTime() : null,
+    infoRequestedBy: row.info_requested_by, infoComment: row.info_comment,
+    signOutAt: row.sign_out_at ? new Date(row.sign_out_at).getTime() : null, signOutBy: row.sign_out_by,
+    signInAt: row.sign_in_at ? new Date(row.sign_in_at).getTime() : null, signInBy: row.sign_in_by,
+    audit: (auditRows||[]).map(a=>({ts:new Date(a.ts).getTime(), actor:a.actor, action:a.action, note:a.note})),
+  };
+}
+function toClientNotif(row){
+  return {
+    id: row.id, ts: new Date(row.ts).getTime(), read: row.read,
+    audience: {role: row.audience_role, house: row.audience_house, studentName: row.audience_student_name},
+    text: row.message,
+  };
+}
+
+/* ============================= data access ============================= */
+async function fetchAll(){
+  if(!supabase){ loaded = true; return; }
+  try{
+    const [reqRes, auditRes, notifRes, staffRes, cfgRes, boRes] = await Promise.all([
+      supabase.from('exeat_requests').select('*').order('no', {ascending:true}),
+      supabase.from('audit_log').select('*').order('ts', {ascending:true}),
+      supabase.from('notifications').select('*').order('ts', {ascending:false}).limit(300),
+      supabase.from('staff_profiles').select('*'),
+      supabase.from('app_config').select('*').eq('id',1).single(),
+      supabase.from('blackout_periods').select('*'),
+    ]);
+    const auditByReq = {};
+    (auditRes.data||[]).forEach(a=>{ (auditByReq[a.request_id] = auditByReq[a.request_id]||[]).push(a); });
+    requests = (reqRes.data||[]).map(row=>toClientRequest(row, auditByReq[row.id]));
+    notifications = (notifRes.data||[]).map(toClientNotif);
+    staff = staffRes.data||[];
+    if(cfgRes.data){
+      config = {
+        maxPerSemester: cfgRes.data.max_per_semester,
+        semesterStart: cfgRes.data.semester_start,
+        escalationHours: cfgRes.data.escalation_hours,
+        blackouts: (boRes.data||[]).map(b=>({id:b.id, label:b.label, start:b.start_date, end:b.end_date})),
+      };
+    }
+  }catch(e){
+    showToast('Could not reach Supabase — check your connection');
+  }
+  loaded = true;
+}
+
+async function insertRequest(payload){
+  const {data, error} = await supabase.from('exeat_requests').insert({
+    category: payload.category, student_name: payload.studentName, student_class: payload.studentClass,
+    house_id: payload.house || null, destination: payload.destination, reason: payload.reason,
+    depart_date: payload.departDate, depart_time: payload.departTime || null,
+    return_date: payload.returnDate || null, return_time: payload.returnTime || null,
+    parent_contact: payload.parentContact, contact_person: payload.contactPerson, transport: payload.transport,
+    photo_url: payload.photoUrl || null, admin_override_requested: !!payload.adminOverrideRequested,
+  }).select().single();
+  if(error){ showToast('Submit failed: '+error.message); return null; }
+  await supabase.from('audit_log').insert({request_id:data.id, actor:payload.studentName, action:'submitted', note:categoryOf(payload).label});
+  if(categoryOf(payload).skipParent){
+    await supabase.from('exeat_requests').update({parent_approved_at:new Date().toISOString(), parent_auto_approved:true}).eq('id', data.id);
+    await supabase.from('audit_log').insert({request_id:data.id, actor:'system', action:'parent step skipped', note:'emergency exeat — routed directly to house warden'});
+  }
+  return data;
+}
+
+async function updateRequest(id, dbPatch, auditEntry){
+  const {error} = await supabase.from('exeat_requests').update(dbPatch).eq('id', id);
+  if(error){ showToast('Save failed: '+error.message); return false; }
+  if(auditEntry){
+    await supabase.from('audit_log').insert({request_id:id, actor:auditEntry.actor, action:auditEntry.action, note:auditEntry.note||null});
+  }
+  return true;
+}
+
+async function addNotification(audience, text){
+  await supabase.from('notifications').insert({
+    audience_role: audience.role, audience_house: audience.house || null,
+    audience_student_name: audience.studentName || null, message: text,
+  });
+}
+async function uploadPhoto(file){
+  const path = genId('photo')+'-'+file.name.replace(/[^a-zA-Z0-9.]/g,'_');
+  const {error} = await supabase.storage.from('exeat-photos').upload(path, file);
+  if(error){ showToast('Photo upload failed: '+error.message); return null; }
+  const {data} = supabase.storage.from('exeat-photos').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+/* ============================= realtime ============================= */
+function subscribeRealtime(){
+  if(!supabase) return;
+  supabase.channel('exeat-changes')
+    .on('postgres_changes', {event:'*', schema:'public', table:'exeat_requests'}, async ()=>{ await fetchAll(); render(); })
+    .on('postgres_changes', {event:'*', schema:'public', table:'audit_log'}, async ()=>{ await fetchAll(); render(); })
+    .on('postgres_changes', {event:'*', schema:'public', table:'notifications'}, async ()=>{ await fetchAll(); render(); })
+    .subscribe();
+}
+
+/* ============================= business logic helpers ============================= */
+function countUsedThisSemester(name){
+  if(!name) return 0;
+  let start = 0;
+  try{ start = new Date(config.semesterStart+'T00:00:00').getTime(); }catch(e){}
+  return requests.filter(r=>
+    r.studentName && r.studentName.toLowerCase()===name.trim().toLowerCase() &&
+    !isExempt(r) && !r.deniedAt && r.createdAt >= start
+  ).length;
+}
+function remainingFor(name){ return Math.max(0, (config.maxPerSemester||3) - countUsedThisSemester(name)); }
+function isInBlackout(dateStr){
+  if(!dateStr) return null;
+  let d;
+  try{ d = new Date(dateStr+'T12:00:00').getTime(); }catch(e){ return null; }
+  return (config.blackouts||[]).find(b=>{
+    try{
+      const s = new Date(b.start+'T00:00:00').getTime();
+      const e = new Date(b.end+'T23:59:59').getTime();
+      return d>=s && d<=e;
+    }catch(err){ return false; }
+  }) || null;
+}
+function statusOf(r){
+  if(r.deniedAt) return 'denied';
+  if(r.signInAt) return 'returned';
+  if(r.signOutAt) return 'out';
+  if(r.wardenApprovedAt && !requiresAdmin(r)) return 'approved';
+  if(r.wardenApprovedAt && requiresAdmin(r) && r.adminApprovedAt) return 'approved';
+  if(r.wardenApprovedAt && requiresAdmin(r) && !r.adminApprovedAt) return 'pending-admin';
+  if(r.parentApprovedAt || categoryOf(r).skipParent) return 'pending-warden';
+  return 'pending-parent';
+}
+function stageLabel(r){
+  const s = statusOf(r);
+  if(s==='pending-parent') return 'Awaiting parent';
+  if(s==='pending-warden') return 'Awaiting house warden';
+  if(s==='pending-admin') return 'Awaiting admin sign-off';
+  if(s==='approved') return 'Approved — awaiting departure';
+  if(s==='out') return 'Signed out';
+  if(s==='returned') return 'Returned';
+  if(s==='denied') return 'Denied';
+  return s;
+}
+function stampFor(r){
+  const s = statusOf(r);
+  if(s==='pending-parent') return {cls:'pending', text:'PENDING'};
+  if(s==='pending-warden') return {cls:'pending', text:'PARENT\nOK'};
+  if(s==='pending-admin') return {cls:'pending-admin', text:'ADMIN\nREVIEW'};
+  if(s==='approved') return {cls:'approved', text:'APPROVED'};
+  if(s==='out') return {cls:'out', text:'OUT'};
+  if(s==='returned') return {cls:'returned', text:'RETURNED'};
+  if(s==='denied') return {cls:'denied', text:'DENIED'};
+  return {cls:'pending', text:'PENDING'};
+}
+function isOverdue(r){
+  if(statusOf(r)!=='out') return false;
+  if(!r.returnDate) return false;
+  try{
+    const dt = new Date(r.returnDate+'T'+(r.returnTime||'23:59'));
+    return Date.now() > dt.getTime();
+  }catch(e){ return false; }
+}
+function isEscalated(r){
+  if(statusOf(r)!=='pending-warden') return false;
+  const since = r.parentApprovedAt || r.createdAt;
+  const hrs = config.escalationHours || 12;
+  return (Date.now()-since) > hrs*3600000;
+}
+function matchesAudience(n, role){
+  const a = n.audience || {};
+  if(a.role !== role) return false;
+  if(a.role==='warden') return !!(session && session.house && a.house===session.house);
+  if(a.role==='student') return !!(studentName && a.studentName && a.studentName.toLowerCase()===studentName.trim().toLowerCase());
+  return true; // parent, admin, gate: open queues
+}
+
+/* ============================= connection banner ============================= */
+function renderConnectionBanner(){
+  const host = document.getElementById('connection-banner');
+  host.innerHTML = '';
+  if(!configured){
+    const d = document.createElement('div');
+    d.className = 'conn-banner';
+    d.innerHTML = 'Not connected to Supabase yet. Edit <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> near the top of the script, run <code>supabase/schema.sql</code> in your project, then reload. See SETUP.md.';
+    host.appendChild(d);
+  } else if(libLoadError){
+    const d = document.createElement('div');
+    d.className = 'conn-banner';
+    d.innerHTML = 'Could not load the Supabase library from the CDN. Check your internet connection and reload the page.';
+    host.appendChild(d);
+  }
+}
+
+/* ============================= notifications UI ============================= */
+function renderBell(){
+  const dot = document.getElementById('bell-dot');
+  const unread = notifications.filter(n=>matchesAudience(n, currentRole) && !n.read).length;
+  if(unread>0){ dot.style.display='flex'; dot.textContent = unread>9 ? '9+' : String(unread); }
+  else{ dot.style.display='none'; }
+}
+async function renderNotifPanel(){
+  const host = document.getElementById('notif-panel');
+  host.innerHTML = '';
+  if(!notifPanelOpen) return;
+  const box = document.createElement('div');
+  box.className = 'notif-panel';
+  const mine = notifications.filter(n=>matchesAudience(n, currentRole)).slice(0,20);
+  if(mine.length===0){
+    box.appendChild(Object.assign(document.createElement('div'), {className:'notif-empty', textContent:'No notifications for this dashboard yet.'}));
+  } else {
+    mine.forEach(n=>{
+      const d = document.createElement('div');
+      d.className = 'notif-item';
+      d.innerHTML = `${escapeHtml(n.text)}<span class="t">${fmtRelative(n.ts)}</span>`;
+      box.appendChild(d);
+    });
+    if(supabase){
+      const ids = mine.filter(n=>!n.read).map(n=>n.id);
+      if(ids.length) await supabase.from('notifications').update({read:true}).in('id', ids);
+    }
+  }
+  host.appendChild(box);
+}
+
+/* ============================= login / accounts ============================= */
+function findAccount(name, role){
+  return staff.find(s=>s.role===role && s.name.toLowerCase()===String(name||'').trim().toLowerCase());
+}
+async function login(roleId){
+  if(!supabase){ showToast('Connect Supabase first — see the banner above'); return false; }
+  const roleLabel = ROLES.find(r=>r.id===roleId).label;
+  const email = prompt('Staff email for '+roleLabel+':');
+  if(email===null) return false;
+  const password = prompt('Password:');
+  if(password===null) return false;
+
+  const {data, error} = await supabase.auth.signInWithPassword({email: email.trim(), password});
+  if(error){ showToast('Sign-in failed: '+error.message); return false; }
+
+  const {data:profile, error:profErr} = await supabase.from('staff_profiles').select('*').eq('id', data.user.id).single();
+  if(profErr || !profile){ showToast('No staff profile found for this account'); await supabase.auth.signOut(); return false; }
+  if(profile.role !== roleId){ showToast('This account is registered as '+profile.role+', not '+roleId); await supabase.auth.signOut(); return false; }
+
+  session = {id:profile.id, role:profile.role, name:profile.name, house:profile.house_id, gatePost:profile.gate_post, accessToken:data.session.access_token};
+  if(profile.must_change_password){
+    showToast('Please set a new password');
+    await doChangePassword(email.trim(), password, true);
+  }
+  return true;
+}
+async function doChangePassword(knownEmail, knownCurrentPw, isFirstLogin){
+  let email = knownEmail, current = knownCurrentPw;
+  if(!isFirstLogin){
+    email = prompt('Your email:');
+    if(email===null) return;
+    current = prompt('Current password:');
+    if(current===null) return;
+    const {error:reErr} = await supabase.auth.signInWithPassword({email:email.trim(), password:current});
+    if(reErr){ showToast('Incorrect current password'); return; }
+  }
+  const next = prompt('New password (6+ characters):');
+  if(next===null) return;
+  if(!next || next.trim().length<6){ showToast('Password must be at least 6 characters'); return; }
+  const confirm2 = prompt('Confirm new password:');
+  if(confirm2 !== next){ showToast('Passwords did not match'); return; }
+  const {error} = await supabase.auth.updateUser({password: next.trim()});
+  if(error){ showToast('Could not update password: '+error.message); return; }
+  await supabase.from('staff_profiles').update({must_change_password:false}).eq('id', session.id);
+  showToast('Password updated');
+  await fetchAll();
+}
+async function switchRole(id){
+  if(STAFF_ROLES.includes(id)){
+    if(!session || session.role!==id){
+      const ok = await login(id);
+      if(!ok) return;
+    }
+  } else {
+    if(session){ await supabase.auth.signOut(); }
+    session = null;
+  }
+  currentRole = id;
+  notifPanelOpen = false;
+  render();
+}
+async function logoutStaff(){
+  if(supabase) await supabase.auth.signOut();
+  session = null;
+  showToast('Signed out');
+  render();
+}
+function staffToolbar(){
+  const bar = document.createElement('div');
+  bar.className = 'staff-toolbar';
+  const exportBtn = document.createElement('button');
+  exportBtn.className = 'btn btn-ghost';
+  exportBtn.textContent = 'Export records (CSV)';
+  exportBtn.onclick = exportCSV;
+  bar.appendChild(exportBtn);
+  if(session){
+    const pwBtn = document.createElement('button');
+    pwBtn.className = 'btn btn-ghost';
+    pwBtn.textContent = 'Change my password';
+    pwBtn.onclick = ()=> doChangePassword(null, null, false);
+    bar.appendChild(pwBtn);
+    const who = document.createElement('span');
+    who.className = 'badge';
+    who.style.alignSelf = 'center';
+    who.textContent = 'Signed in: '+session.name + (session.house ? ' · '+session.house : (session.gatePost ? ' · '+session.gatePost : ''));
+    bar.appendChild(who);
+    const outBtn = document.createElement('button');
+    outBtn.className = 'btn btn-ghost';
+    outBtn.textContent = 'Log out';
+    outBtn.onclick = logoutStaff;
+    bar.appendChild(outBtn);
+  }
+  return bar;
+}
+function exportCSV(){
+  const headers = ['Pass No','Pass ID','Category','Student','Class','House','Destination','Reason',
+    'Depart Date','Depart Time','Return Date','Return Time','Parent Contact','Contact Person','Transport',
+    'Status','Parent Approved','Warden Approved','Admin Approved','Signed Out','Signed In',
+    'Denied By','Deny Reason','Overdue'];
+  const rows = requests.slice().sort((a,b)=>(a.no||0)-(b.no||0)).map(r=>[
+    pad(r.no), r.passId||'', categoryOf(r).label, r.studentName, r.studentClass, r.house, r.destination, r.reason,
+    r.departDate, r.departTime, r.returnDate, r.returnTime, r.parentContact, r.contactPerson, r.transport,
+    stageLabel(r),
+    r.parentApprovedAt ? new Date(r.parentApprovedAt).toLocaleString() : '',
+    r.wardenApprovedAt ? new Date(r.wardenApprovedAt).toLocaleString() : '',
+    r.adminApprovedAt ? new Date(r.adminApprovedAt).toLocaleString() : '',
+    r.signOutAt ? new Date(r.signOutAt).toLocaleString() : '',
+    r.signInAt ? new Date(r.signInAt).toLocaleString() : '',
+    r.deniedBy || '', r.denyReason || '', isOverdue(r) ? 'YES' : '',
+  ]);
+  const csv = [headers, ...rows].map(row=>row.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'exeat-records-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported');
+}
+
+/* ============================= tabs ============================= */
+function renderTabs(){
+  const el = document.getElementById('tabs');
+  el.innerHTML = '';
+  ROLES.forEach(r=>{
+    const b = document.createElement('div');
+    b.className = 'tab' + (currentRole===r.id ? ' active':'');
+    b.textContent = (STAFF_ROLES.includes(r.id) && !(session && session.role===r.id) ? '🔒 ' : '') + r.label;
+    b.onclick = ()=> switchRole(r.id);
+    el.appendChild(b);
+  });
+}
+
+/* ============================= pass card ============================= */
+function passCard(r, opts){
+  const s = statusOf(r);
+  const st = stampFor(r);
+  const cat = categoryOf(r);
+  const card = document.createElement('div');
+  card.className = 'pass status-'+s;
+
+  const left = document.createElement('div');
+  const badges = [];
+  badges.push(`<span class="badge badge-cat">${escapeHtml(cat.label)}</span>`);
+  if(isOverdue(r)) badges.push(`<span class="badge badge-overdue">OVERDUE</span>`);
+  if(isEscalated(r)) badges.push(`<span class="badge badge-escalated">ESCALATED</span>`);
+  if(r.adminOverrideRequested) badges.push(`<span class="badge">LIMIT OVERRIDE REQUESTED</span>`);
+
+  left.innerHTML = `
+    <div class="pass-no">PASS NO. ${pad(r.no)}</div>
+    <div class="pass-name">${escapeHtml(r.studentName)}</div>
+    <div class="pass-meta">${escapeHtml(r.studentClass || '—')} · ${escapeHtml(r.house || '—')} house · ${stageLabel(r)}</div>
+    <div class="pass-badges">${badges.join('')}</div>
+    <div class="pass-detail"><b>Destination:</b> ${escapeHtml(r.destination)}<br><b>Reason:</b> ${escapeHtml(r.reason)}
+      ${r.transport ? '<br><b>Transport:</b> '+escapeHtml(r.transport) : ''}
+      ${r.contactPerson ? '<br><b>Picking up:</b> '+escapeHtml(r.contactPerson) : ''}
+    </div>
+    <div class="pass-times">
+      <span>DEPART <b>${fmtDateTime(r.departDate, r.departTime)}</b></span>
+      <span>RETURN BY <b>${fmtDateTime(r.returnDate, r.returnTime)}</b></span>
+    </div>
+    ${r.parentContact ? `<div class="pass-meta" style="margin-top:6px;">Parent contact: ${escapeHtml(r.parentContact)}</div>` : ''}
+    ${r.deniedAt ? `<div class="deny-reason">Denied${r.deniedBy?(' by '+escapeHtml(r.deniedBy)):''}${r.denyReason ? ': "'+escapeHtml(r.denyReason)+'"' : ''}</div>` : ''}
+    ${r.infoRequestedAt ? `<div class="info-note">Info requested${r.infoRequestedBy?(' by '+escapeHtml(r.infoRequestedBy)):''}: "${escapeHtml(r.infoComment||'')}"</div>` : ''}
+    ${r.photoDataUrl ? `<img class="photo-thumb" src="${r.photoDataUrl}" alt="Student photo ID">` : ''}
+  `;
+
+  if(r.passId && (s==='approved' || s==='out' || s==='returned')){
+    const qrWrap = document.createElement('div');
+    qrWrap.className = 'qr-box';
+    const qrDiv = document.createElement('div');
+    qrDiv.id = 'qr-'+r.id;
+    qrWrap.appendChild(qrDiv);
+    const idLine = document.createElement('div');
+    idLine.className = 'passid';
+    idLine.textContent = 'PASS ID: '+r.passId;
+    qrWrap.appendChild(idLine);
+    left.appendChild(qrWrap);
+    if(typeof QRCode !== 'undefined'){
+      try{ new QRCode(qrDiv, {text:r.passId, width:88, height:88}); }catch(e){}
+    }
+  }
+
+  if(r.audit && r.audit.length){
+    const det = document.createElement('details');
+    det.className = 'audit';
+    const summary = document.createElement('summary');
+    summary.textContent = 'History ('+r.audit.length+')';
+    det.appendChild(summary);
+    const ul = document.createElement('ul');
+    r.audit.forEach(a=>{
+      const li = document.createElement('li');
+      li.textContent = new Date(a.ts).toLocaleString()+' — '+a.actor+': '+a.action+(a.note ? ' ('+a.note+')' : '');
+      ul.appendChild(li);
+    });
+    det.appendChild(ul);
+    left.appendChild(det);
+  }
+
+  const right = document.createElement('div');
+  right.className = 'pass-actions';
+  const stamp = document.createElement('div');
+  stamp.className = 'stamp '+st.cls;
+  stamp.style.whiteSpace='pre-line';
+  stamp.textContent = st.text;
+  right.appendChild(stamp);
+
+  const btnrow = document.createElement('div');
+  btnrow.className = 'btnrow';
+  if(opts && opts.actions){
+    opts.actions.forEach(a=>{
+      const b = document.createElement('button');
+      b.className = 'btn btn-sm ' + a.cls;
+      b.textContent = a.label;
+      b.onclick = a.onClick;
+      btnrow.appendChild(b);
+    });
+  }
+  right.appendChild(btnrow);
+
+  card.appendChild(left);
+  card.appendChild(right);
+  return card;
+}
+function emptyState(title, body){
+  const d = document.createElement('div');
+  d.className = 'empty';
+  d.innerHTML = `<b>${title}</b>${body}`;
+  return d;
+}
+function titleBlock(title, sub){
+  const d = document.createElement('div');
+  d.innerHTML = `<h2 class="section-title">${title}</h2><p class="section-sub">${sub}</p>`;
+  return d;
+}
+
+/* ============================= student panel ============================= */
+function renderStudentPanel(container){
+  const wrap = document.createElement('div');
+  const who = document.createElement('div');
+  who.className = 'whoami';
+  who.innerHTML = `<label style="margin:0;">Signed in as</label>`;
+  const input = document.createElement('input');
+  input.placeholder = 'Your full name';
+  input.value = studentName;
+  input.oninput = (e)=>{ studentName = e.target.value; renderBell(); };
+  who.appendChild(input);
+  wrap.appendChild(who);
+
+  wrap.appendChild(titleBlock('Request an exeat', 'Submitted requests go first to your parent/guardian, then your house warden, and to the admin office for overnight/off-campus, medical or emergency exeats.'));
+
+  if(studentName.trim()){
+    const used = countUsedThisSemester(studentName);
+    const remaining = remainingFor(studentName);
+    const box = document.createElement('div');
+    box.className = 'limit-box';
+    box.innerHTML = `You've used <b>${used}</b> of <b>${config.maxPerSemester}</b> day/weekend exeats this semester — <b>${remaining}</b> remaining. Medical and emergency exeats don't count against this limit.`;
+    wrap.appendChild(box);
+  }
+
+  const form = document.createElement('div');
+  form.className = 'form-grid';
+  form.innerHTML = `
+    <div class="field"><label>Class</label><input id="f-class" placeholder="e.g. SS2 Gold"></div>
+    <div class="field"><label>House</label>
+      <select id="f-house"><option value="">Select house</option>${HOUSES.map(h=>`<option value="${h}">${h}</option>`).join('')}</select>
+    </div>
+    <div class="field full">
+      <label>Exeat category</label>
+      <select id="f-cat">${CATEGORIES.map(c=>`<option value="${c.id}">${c.label}</option>`).join('')}</select>
+      <div class="cat-desc" id="cat-desc"></div>
+    </div>
+    <div class="field full"><label>Destination</label><input id="f-dest" placeholder="Where are you going?"></div>
+    <div class="field full"><label>Reason</label><textarea id="f-reason" placeholder="Reason for the exeat"></textarea></div>
+    <div class="field"><label>Depart date</label><input id="f-ddate" type="date"></div>
+    <div class="field"><label>Depart time</label><input id="f-dtime" type="time"></div>
+    <div class="field"><label>Return date</label><input id="f-rdate" type="date"></div>
+    <div class="field"><label>Return time</label><input id="f-rtime" type="time"></div>
+    <div class="field"><label>Mode of transport</label><input id="f-transport" placeholder="e.g. Parent's car, taxi, bus"></div>
+    <div class="field"><label>Contact person (pick-up)</label><input id="f-person" placeholder="Who is picking you up?"></div>
+    <div class="field full"><label>Parent/guardian contact</label><input id="f-contact" placeholder="Phone number"></div>
+    <div class="field full"><label>Photo ID (optional, shown to gate staff)</label><input id="f-photo" type="file" accept="image/*" capture="environment"></div>
+    <div id="blackout-warn"></div>
+    <div class="form-actions"><button class="btn btn-primary" id="submit-btn">Submit request</button></div>
+  `;
+  wrap.appendChild(form);
+  container.appendChild(wrap);
+
+  const catSelect = form.querySelector('#f-cat');
+  const descDiv = form.querySelector('#cat-desc');
+  function updateCatDesc(){ descDiv.textContent = categoryOf({category:catSelect.value}).desc; }
+  catSelect.onchange = updateCatDesc;
+  updateCatDesc();
+
+  let photoFile = null;
+  form.querySelector('#f-photo').onchange = (e)=>{ photoFile = e.target.files[0] || null; if(photoFile) showToast('Photo attached'); };
+
+  function checkBlackout(){
+    const ddate = form.querySelector('#f-ddate').value;
+    const rdate = form.querySelector('#f-rdate').value;
+    const hit = isInBlackout(ddate) || isInBlackout(rdate);
+    const warnDiv = form.querySelector('#blackout-warn');
+    warnDiv.innerHTML = '';
+    if(hit){
+      const w = document.createElement('div');
+      w.className = 'warn-box';
+      w.style.gridColumn = '1/-1';
+      w.textContent = 'Heads up: this falls within a restricted period — "'+hit.label+'" ('+hit.start+' to '+hit.end+'). Only medical/emergency exeats may proceed, and will need a clear reason.';
+      warnDiv.appendChild(w);
+    }
+    return hit;
+  }
+  form.querySelector('#f-ddate').onchange = checkBlackout;
+  form.querySelector('#f-rdate').onchange = checkBlackout;
+
+  form.querySelector('#submit-btn').onclick = async ()=>{
+    if(!supabase){ showToast('Connect Supabase first — see the banner above'); return; }
+    if(!studentName.trim()){ showToast('Enter your name first'); return; }
+    const dest = form.querySelector('#f-dest').value.trim();
+    const reason = form.querySelector('#f-reason').value.trim();
+    const departDate = form.querySelector('#f-ddate').value;
+    const category = catSelect.value;
+    if(!dest || !reason || !departDate){ showToast('Fill in destination, reason and depart date'); return; }
+
+    const cat = CATEGORIES.find(c=>c.id===category);
+    const blackoutHit = checkBlackout();
+    let overrideRequested = false;
+    if(blackoutHit && !cat.exempt){
+      showToast('Requests are blocked during "'+blackoutHit.label+'". Only medical/emergency exeats can proceed.');
+      return;
+    }
+    if(!cat.exempt && remainingFor(studentName)<=0){
+      const wantsOverride = confirm('You have reached your limit of '+config.maxPerSemester+' exeats this semester. Submit anyway for admin override review?');
+      if(!wantsOverride) return;
+      overrideRequested = true;
+    }
+
+    let photoUrl = null;
+    if(photoFile){
+      showToast('Uploading photo…');
+      photoUrl = await uploadPhoto(photoFile);
+    }
+
+    const payload = {
+      category, studentName: studentName.trim(), studentClass: form.querySelector('#f-class').value.trim(),
+      house: form.querySelector('#f-house').value, destination: dest, reason: reason,
+      departDate: departDate, departTime: form.querySelector('#f-dtime').value,
+      returnDate: form.querySelector('#f-rdate').value, returnTime: form.querySelector('#f-rtime').value,
+      parentContact: form.querySelector('#f-contact').value.trim(), contactPerson: form.querySelector('#f-person').value.trim(),
+      transport: form.querySelector('#f-transport').value.trim(), photoUrl, adminOverrideRequested: overrideRequested,
+    };
+    const created = await insertRequest(payload);
+    if(!created) return;
+    await addNotification({role:'parent'}, NOTIF_TEMPLATES.submitted(payload));
+    if(cat.skipParent && payload.house){
+      await addNotification({role:'warden', house:payload.house}, 'EMERGENCY: '+NOTIF_TEMPLATES.submitted(payload));
+    }
+    showToast('Exeat request submitted');
+    await fetchAll();
+    render();
+  };
+
+  const mine = studentName.trim()
+    ? requests.filter(r=>r.studentName.toLowerCase()===studentName.trim().toLowerCase()).sort((a,b)=>b.createdAt-a.createdAt)
+    : [];
+  container.appendChild(Object.assign(document.createElement('div'), {innerHTML:'<h2 class="section-title" style="margin-top:26px;">My passes</h2>'}));
+  const ledger = document.createElement('div');
+  ledger.className = 'ledger';
+  if(!studentName.trim()) ledger.appendChild(emptyState('No name entered', 'Enter your name above to see your exeat history.'));
+  else if(mine.length===0) ledger.appendChild(emptyState('No passes yet', 'Requests you submit will appear here as they move through approval.'));
+  else mine.forEach(r=>ledger.appendChild(passCard(r)));
+  container.appendChild(ledger);
+}
+
+/* ============================= parent panel ============================= */
+function renderParentPanel(container){
+  container.appendChild(titleBlock('Requests awaiting your approval', "Approve or decline your child's exeat request. Emergency exeats bypass this step and go straight to the house warden."));
+
+  const filterWrap = document.createElement('div');
+  filterWrap.className = 'whoami';
+  filterWrap.innerHTML = `<label style="margin:0;">Filter by child's name (optional)</label>`;
+  const fInput = document.createElement('input');
+  fInput.value = parentChildFilter;
+  fInput.oninput = (e)=>{ parentChildFilter = e.target.value; render(); };
+  filterWrap.appendChild(fInput);
+  container.appendChild(filterWrap);
+
+  const matchChild = r => !parentChildFilter.trim() || r.studentName.toLowerCase().includes(parentChildFilter.trim().toLowerCase());
+  const pending = requests.filter(r=>statusOf(r)==='pending-parent' && matchChild(r)).sort((a,b)=>a.createdAt-b.createdAt);
+  const ledger = document.createElement('div');
+  ledger.className = 'ledger';
+  if(pending.length===0){
+    ledger.appendChild(emptyState('All clear', 'No requests are waiting on parent approval right now.'));
+  } else {
+    pending.forEach(r=>{
+      const actions = [
+        {label:'Approve', cls:'btn-approve', onClick: async ()=>{
+          await updateRequest(r.id, {parent_approved_at:new Date().toISOString()}, {actor:'parent', action:'approved'});
+          await addNotification({role:'warden', house:r.house}, NOTIF_TEMPLATES.parentApproved(r));
+          showToast('Approved pass No. '+pad(r.no));
+          await fetchAll(); render();
+        }},
+        {label:'Decline', cls:'btn-deny', onClick: async ()=>{
+          const reason = prompt('Reason for declining (optional):') || '';
+          await updateRequest(r.id, {denied_at:new Date().toISOString(), denied_by:'parent', deny_reason:reason}, {actor:'parent', action:'declined', note:reason});
+          await addNotification({role:'student', studentName:r.studentName}, NOTIF_TEMPLATES.denied(r));
+          showToast('Declined pass No. '+pad(r.no));
+          await fetchAll(); render();
+        }},
+      ];
+      ledger.appendChild(passCard(r, {actions}));
+    });
+  }
+  container.appendChild(ledger);
+
+  container.appendChild(Object.assign(document.createElement('div'), {innerHTML:'<h2 class="section-title" style="margin-top:26px;">Recent decisions</h2>'}));
+  const hist = document.createElement('div');
+  hist.className = 'ledger';
+  const recent = requests.filter(r=>statusOf(r)!=='pending-parent' && matchChild(r)).sort((a,b)=>b.createdAt-a.createdAt).slice(0,6);
+  if(recent.length===0) hist.appendChild(emptyState('Nothing yet', 'Decisions made will be listed here for reference.'));
+  else recent.forEach(r=>hist.appendChild(passCard(r)));
+  container.appendChild(hist);
+}
+
+/* ============================= warden panel ============================= */
+function renderWardenPanel(container){
+  const myHouse = session ? session.house : null;
+  container.appendChild(staffToolbar());
+  container.appendChild(titleBlock('Requests awaiting your approval', 'Approving here sends off-campus/overnight, medical and emergency exeats on to admin for final sign-off. Day exeats are cleared for the gate immediately.'));
+
+  const escalated = requests.filter(r=>isEscalated(r) && r.house===myHouse);
+  if(escalated.length){
+    const w = document.createElement('div');
+    w.className = 'warn-box';
+    w.textContent = escalated.length+' request(s) have been pending over '+config.escalationHours+'h and have been flagged to admin.';
+    container.appendChild(w);
+  }
+
+  const pending = requests.filter(r=>statusOf(r)==='pending-warden' && r.house===myHouse).sort((a,b)=>a.createdAt-b.createdAt);
+  const ledger = document.createElement('div');
+  ledger.className = 'ledger';
+  if(pending.length===0){
+    ledger.appendChild(emptyState('All clear', 'No requests for '+(myHouse||'your house')+' are waiting on warden approval.'));
+  } else {
+    pending.forEach(r=>{
+      const actions = [
+        {label:'Approve', cls:'btn-approve', onClick: async ()=>{
+          const patch = {warden_approved_at:new Date().toISOString(), warden_approved_by:session.name};
+          if(!requiresAdmin(r)) patch.pass_id = genPassId(r.no);
+          await updateRequest(r.id, patch, {actor:session.name, action:'warden approved'});
+          if(patch.pass_id) await supabase.from('audit_log').insert({request_id:r.id, actor:'system', action:'pass generated', note:patch.pass_id});
+          await addNotification({role: requiresAdmin(r) ? 'admin' : 'gate'}, NOTIF_TEMPLATES.wardenApproved(r));
+          await addNotification({role:'student', studentName:r.studentName}, NOTIF_TEMPLATES.wardenApproved(r));
+          showToast('Approved pass No. '+pad(r.no));
+          await fetchAll(); render();
+        }},
+        {label:'Request info', cls:'btn-info', onClick: async ()=>{
+          const comment = prompt('What information do you need from the student/parent?');
+          if(!comment) return;
+          await updateRequest(r.id, {info_requested_at:new Date().toISOString(), info_requested_by:'warden', info_comment:comment}, {actor:session.name, action:'requested more info', note:comment});
+          await addNotification({role:'student', studentName:r.studentName}, NOTIF_TEMPLATES.infoRequested(r));
+          await addNotification({role:'parent'}, NOTIF_TEMPLATES.infoRequested(r));
+          showToast('Info request sent');
+          await fetchAll(); render();
+        }},
+        {label:'Decline', cls:'btn-deny', onClick: async ()=>{
+          const reason = prompt('Reason for declining (optional):') || '';
+          await updateRequest(r.id, {denied_at:new Date().toISOString(), denied_by:'warden', deny_reason:reason}, {actor:session.name, action:'declined', note:reason});
+          await addNotification({role:'student', studentName:r.studentName}, NOTIF_TEMPLATES.denied(r));
+          await addNotification({role:'parent'}, NOTIF_TEMPLATES.denied(r));
+          showToast('Declined pass No. '+pad(r.no));
+          await fetchAll(); render();
+        }},
+      ];
+      ledger.appendChild(passCard(r, {actions}));
+    });
+  }
+  container.appendChild(ledger);
+
+  container.appendChild(Object.assign(document.createElement('div'), {innerHTML:`<h2 class="section-title" style="margin-top:26px;">Recent decisions — ${escapeHtml(myHouse||'')}</h2>`}));
+  const hist = document.createElement('div');
+  hist.className = 'ledger';
+  const recent = requests.filter(r=>r.house===myHouse && (r.wardenApprovedAt || r.deniedAt)).sort((a,b)=>b.createdAt-a.createdAt).slice(0,6);
+  if(recent.length===0) hist.appendChild(emptyState('Nothing yet', 'Decisions made will be listed here for reference.'));
+  else recent.forEach(r=>hist.appendChild(passCard(r)));
+  container.appendChild(hist);
+}
+
+/* ============================= gate panel ============================= */
+function renderGatePanel(container){
+  container.appendChild(staffToolbar());
+  container.appendChild(titleBlock('Gate register', 'Verify the pass ID (or QR code) and the photo shown against the student before signing out or in.'));
+
+  const lookupWrap = document.createElement('div');
+  lookupWrap.className = 'whoami';
+  lookupWrap.innerHTML = `<label style="margin:0;">Look up pass (offline fallback)</label>`;
+  const lookupInput = document.createElement('input');
+  lookupInput.placeholder = 'Pass ID or student name';
+  lookupWrap.appendChild(lookupInput);
+  container.appendChild(lookupWrap);
+  let lookupTerm = '';
+  lookupInput.oninput = (e)=>{ lookupTerm = e.target.value.trim().toLowerCase(); renderGateLists(); };
+
+  container.appendChild(Object.assign(document.createElement('div'), {innerHTML:'<h2 class="section-title">Cleared to depart</h2><p class="section-sub">Sign a student out once you\'ve verified their pass at the gate.</p>'}));
+  const l1 = document.createElement('div'); l1.className = 'ledger'; container.appendChild(l1);
+  container.appendChild(Object.assign(document.createElement('div'), {innerHTML:'<h2 class="section-title" style="margin-top:26px;">Currently off campus</h2>'}));
+  const l2 = document.createElement('div'); l2.className = 'ledger'; container.appendChild(l2);
+
+  function renderGateLists(){
+    l1.innerHTML = ''; l2.innerHTML = '';
+    const matches = r => !lookupTerm || (r.passId||'').toLowerCase().includes(lookupTerm) || r.studentName.toLowerCase().includes(lookupTerm);
+
+    const approved = requests.filter(r=>statusOf(r)==='approved' && matches(r)).sort((a,b)=>a.createdAt-b.createdAt);
+    if(approved.length===0) l1.appendChild(emptyState('Gate is quiet', 'No fully-approved passes are waiting to depart.'));
+    else approved.forEach(r=>{
+      const actions = [{label:'Sign out', cls:'btn-primary', onClick: async ()=>{
+        await updateRequest(r.id, {sign_out_at:new Date().toISOString(), sign_out_by:session?session.name:'gate'}, {actor:session?session.name:'gate', action:'signed out'});
+        await addNotification({role:'parent'}, NOTIF_TEMPLATES.signedOut(r));
+        await addNotification({role:'warden', house:r.house}, NOTIF_TEMPLATES.signedOut(r));
+        showToast('Signed out pass No. '+pad(r.no));
+        await fetchAll(); render();
+      }}];
+      l1.appendChild(passCard(r,{actions}));
+    });
+
+    const out = requests.filter(r=>statusOf(r)==='out' && matches(r)).sort((a,b)=>a.createdAt-b.createdAt);
+    if(out.length===0) l2.appendChild(emptyState('Everyone is in', 'No students are currently signed out.'));
+    else out.forEach(r=>{
+      const actions = [{label:'Sign in (returned)', cls:'btn-approve', onClick: async ()=>{
+        await updateRequest(r.id, {sign_in_at:new Date().toISOString(), sign_in_by:session?session.name:'gate'}, {actor:session?session.name:'gate', action:'signed in'});
+        await addNotification({role:'parent'}, NOTIF_TEMPLATES.signedIn(r));
+        await addNotification({role:'warden', house:r.house}, NOTIF_TEMPLATES.signedIn(r));
+        showToast('Welcomed back — pass No. '+pad(r.no)+' closed');
+        await fetchAll(); render();
+      }}];
+      l2.appendChild(passCard(r,{actions}));
+    });
+  }
+  renderGateLists();
+}
+
+/* ============================= admin panel ============================= */
+function renderAdminPanel(container){
+  container.appendChild(staffToolbar());
+  container.appendChild(titleBlock('Admin dashboard', 'Final sign-off, escalations, reporting and system settings across all houses.'));
+
+  const escalated = requests.filter(r=>isEscalated(r));
+  if(escalated.length){
+    container.appendChild(titleBlock('Escalated — needs attention', escalated.length+' request(s) have been pending with a house warden past the '+config.escalationHours+'h escalation window.'));
+    const eLedger = document.createElement('div'); eLedger.className = 'ledger';
+    escalated.forEach(r=>{
+      const actions = [
+        {label:'Approve as admin', cls:'btn-approve', onClick: async ()=>{
+          const patch = {
+            warden_approved_at: r.wardenApprovedAt ? undefined : new Date().toISOString(),
+            warden_approved_by: r.wardenApprovedBy || (session.name+' (admin override)'),
+            admin_approved_at: new Date().toISOString(), admin_approved_by: session.name,
+            pass_id: r.passId || genPassId(r.no),
+          };
+          Object.keys(patch).forEach(k=>patch[k]===undefined && delete patch[k]);
+          await updateRequest(r.id, patch, {actor:session.name, action:'admin approved (escalation override)'});
+          await addNotification({role:'gate'}, NOTIF_TEMPLATES.adminApproved(r));
+          await addNotification({role:'student', studentName:r.studentName}, NOTIF_TEMPLATES.adminApproved(r));
+          showToast('Approved pass No. '+pad(r.no));
+          await fetchAll(); render();
+        }},
+        {label:'Decline', cls:'btn-deny', onClick: async ()=>{
+          const reason = prompt('Reason for declining (optional):') || '';
+          await updateRequest(r.id, {denied_at:new Date().toISOString(), denied_by:'admin', deny_reason:reason}, {actor:session.name, action:'declined (escalation)', note:reason});
+          await addNotification({role:'student', studentName:r.studentName}, NOTIF_TEMPLATES.denied(r));
+          showToast('Declined pass No. '+pad(r.no));
+          await fetchAll(); render();
+        }},
+      ];
+      eLedger.appendChild(passCard(r, {actions}));
+    });
+    container.appendChild(eLedger);
+  }
+
+  container.appendChild(titleBlock('Awaiting final admin sign-off', 'Overnight/off-campus, medical and emergency exeats need your approval after the house warden.'));
+  const pendingAdmin = requests.filter(r=>statusOf(r)==='pending-admin').sort((a,b)=>a.createdAt-b.createdAt);
+  const aLedger = document.createElement('div'); aLedger.className = 'ledger';
+  if(pendingAdmin.length===0) aLedger.appendChild(emptyState('All clear', 'Nothing is waiting on admin sign-off right now.'));
+  else pendingAdmin.forEach(r=>{
+    const actions = [
+      {label:'Approve', cls:'btn-approve', onClick: async ()=>{
+        await updateRequest(r.id, {admin_approved_at:new Date().toISOString(), admin_approved_by:session.name, pass_id:r.passId||genPassId(r.no)}, {actor:session.name, action:'admin approved'});
+        await addNotification({role:'gate'}, NOTIF_TEMPLATES.adminApproved(r));
+        await addNotification({role:'student', studentName:r.studentName}, NOTIF_TEMPLATES.adminApproved(r));
+        showToast('Approved pass No. '+pad(r.no));
+        await fetchAll(); render();
+      }},
+      {label:'Decline', cls:'btn-deny', onClick: async ()=>{
+        const reason = prompt('Reason for declining (optional):') || '';
+        await updateRequest(r.id, {denied_at:new Date().toISOString(), denied_by:'admin', deny_reason:reason}, {actor:session.name, action:'declined', note:reason});
+        await addNotification({role:'student', studentName:r.studentName}, NOTIF_TEMPLATES.denied(r));
+        await addNotification({role:'parent'}, NOTIF_TEMPLATES.denied(r));
+        showToast('Declined pass No. '+pad(r.no));
+        await fetchAll(); render();
+      }},
+    ];
+    aLedger.appendChild(passCard(r, {actions}));
+  });
+  container.appendChild(aLedger);
+
+  const overdue = requests.filter(r=>isOverdue(r));
+  container.appendChild(Object.assign(document.createElement('div'), {innerHTML:'<h2 class="section-title" style="margin-top:26px;">Overdue students</h2>'}));
+  const oLedger = document.createElement('div'); oLedger.className = 'ledger';
+  if(overdue.length===0) oLedger.appendChild(emptyState('Nobody overdue', 'All signed-out students are within their return window.'));
+  else overdue.forEach(r=>{
+    const actions = [{label:'Log warden notification', cls:'btn-ghost', onClick: async ()=>{
+      await supabase.from('audit_log').insert({request_id:r.id, actor:session.name, action:'overdue — house warden notified'});
+      await addNotification({role:'warden', house:r.house}, NOTIF_TEMPLATES.overdue(r));
+      await addNotification({role:'parent'}, NOTIF_TEMPLATES.overdue(r));
+      showToast('Notification logged');
+      await fetchAll(); render();
+    }}];
+    oLedger.appendChild(passCard(r,{actions}));
+  });
+  container.appendChild(oLedger);
+
+  renderAnalytics(container);
+  renderRecordSearch(container);
+  renderAdminSettings(container);
+  renderStaffAccounts(container);
+  renderNotifTemplatesRef(container);
+}
+
+function renderAnalytics(container){
+  const block = document.createElement('div');
+  block.className = 'section-block';
+  block.appendChild(titleBlock('Reporting & analytics', 'A snapshot of exeat activity across the school.'));
+
+  const total = requests.length;
+  const outCount = requests.filter(r=>['out','returned'].includes(statusOf(r))).length;
+  const overdueCount = requests.filter(r=>isOverdue(r)).length;
+  const overdueRate = outCount ? Math.round((overdueCount/outCount)*100) : 0;
+  const deniedCount = requests.filter(r=>statusOf(r)==='denied').length;
+
+  const stats = document.createElement('div'); stats.className = 'stat-grid';
+  [['Total requests', total], ['Currently out', requests.filter(r=>statusOf(r)==='out').length], ['Overdue rate', overdueRate+'%'], ['Declined', deniedCount]]
+    .forEach(([lbl,num])=>{
+      const c = document.createElement('div'); c.className = 'stat-card';
+      c.innerHTML = `<div class="num">${num}</div><div class="lbl">${lbl}</div>`;
+      stats.appendChild(c);
+    });
+  block.appendChild(stats);
+
+  const byHouse = {}; HOUSES.forEach(h=>byHouse[h]=0);
+  requests.forEach(r=>{ if(r.house) byHouse[r.house] = (byHouse[r.house]||0)+1; });
+  const maxHouse = Math.max(1, ...Object.values(byHouse));
+  block.appendChild(titleBlock('Exeats per house', ''));
+  Object.entries(byHouse).forEach(([house,n])=>{
+    const row = document.createElement('div'); row.className = 'bar-row';
+    row.innerHTML = `<span class="name">${house}</span><span class="bar-track"><span class="bar-fill" style="width:${(n/maxHouse*100)}%"></span></span><span class="n">${n}</span>`;
+    block.appendChild(row);
+  });
+
+  const byCat = {}; CATEGORIES.forEach(c=>byCat[c.id]=0);
+  requests.forEach(r=>{ byCat[r.category] = (byCat[r.category]||0)+1; });
+  const maxCat = Math.max(1, ...Object.values(byCat));
+  block.appendChild(titleBlock('Exeats by category', ''));
+  CATEGORIES.forEach(c=>{
+    const n = byCat[c.id]||0;
+    const row = document.createElement('div'); row.className = 'bar-row';
+    row.innerHTML = `<span class="name">${c.label}</span><span class="bar-track"><span class="bar-fill" style="width:${(n/maxCat*100)}%"></span></span><span class="n">${n}</span>`;
+    block.appendChild(row);
+  });
+
+  const reasonTally = {};
+  requests.forEach(r=>{ const k=(r.reason||'').trim().toLowerCase(); if(k) reasonTally[k]=(reasonTally[k]||0)+1; });
+  const topReasons = Object.entries(reasonTally).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(topReasons.length){
+    block.appendChild(titleBlock('Most common reasons', ''));
+    const maxR = Math.max(1, ...topReasons.map(x=>x[1]));
+    topReasons.forEach(([reason,n])=>{
+      const row = document.createElement('div'); row.className = 'bar-row';
+      row.innerHTML = `<span class="name" style="width:180px;">${escapeHtml(reason.slice(0,26))}</span><span class="bar-track"><span class="bar-fill" style="width:${(n/maxR*100)}%"></span></span><span class="n">${n}</span>`;
+      block.appendChild(row);
+    });
+  }
+
+  const hourTally = new Array(24).fill(0);
+  requests.forEach(r=>{ hourTally[new Date(r.createdAt).getHours()]++; });
+  const peak = hourTally.map((n,h)=>({h,n})).sort((a,b)=>b.n-a.n).filter(x=>x.n>0).slice(0,3);
+  if(peak.length){
+    const p = document.createElement('p'); p.className = 'section-sub';
+    p.textContent = 'Peak request hours: '+peak.map(x=>`${String(x.h).padStart(2,'0')}:00 (${x.n})`).join(', ');
+    block.appendChild(p);
+  }
+
+  const studentTally = {};
+  requests.forEach(r=>{ studentTally[r.studentName] = (studentTally[r.studentName]||0)+1; });
+  const topStudents = Object.entries(studentTally).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(topStudents.length){
+    block.appendChild(titleBlock('Most frequent requesters', ''));
+    const maxS = Math.max(1, ...topStudents.map(x=>x[1]));
+    topStudents.forEach(([name,n])=>{
+      const row = document.createElement('div'); row.className = 'bar-row';
+      row.innerHTML = `<span class="name">${escapeHtml(name)}</span><span class="bar-track"><span class="bar-fill" style="width:${(n/maxS*100)}%"></span></span><span class="n">${n}</span>`;
+      block.appendChild(row);
+    });
+  }
+  container.appendChild(block);
+}
+
+function renderRecordSearch(container){
+  const block = document.createElement('div');
+  block.className = 'section-block';
+  block.appendChild(titleBlock('Search all records', 'Filter by student, house, status, category or date range.'));
+
+  const bar = document.createElement('div'); bar.className = 'filter-bar';
+  bar.innerHTML = `
+    <input id="af-name" placeholder="Student name" value="${escapeHtml(adminFilter.name)}">
+    <select id="af-house"><option value="">All houses</option>${HOUSES.map(h=>`<option value="${h}" ${adminFilter.house===h?'selected':''}>${h}</option>`).join('')}</select>
+    <select id="af-status"><option value="">All statuses</option>${['pending-parent','pending-warden','pending-admin','approved','out','returned','denied','overdue'].map(s=>`<option value="${s}" ${adminFilter.status===s?'selected':''}>${s}</option>`).join('')}</select>
+    <select id="af-cat"><option value="">All categories</option>${CATEGORIES.map(c=>`<option value="${c.id}" ${adminFilter.category===c.id?'selected':''}>${c.label}</option>`).join('')}</select>
+    <input id="af-from" type="date" value="${adminFilter.from}">
+    <input id="af-to" type="date" value="${adminFilter.to}">
+  `;
+  block.appendChild(bar);
+  bar.querySelector('#af-name').oninput = (e)=>{ adminFilter.name = e.target.value; render(); };
+  bar.querySelector('#af-house').onchange = (e)=>{ adminFilter.house = e.target.value; render(); };
+  bar.querySelector('#af-status').onchange = (e)=>{ adminFilter.status = e.target.value; render(); };
+  bar.querySelector('#af-cat').onchange = (e)=>{ adminFilter.category = e.target.value; render(); };
+  bar.querySelector('#af-from').onchange = (e)=>{ adminFilter.from = e.target.value; render(); };
+  bar.querySelector('#af-to').onchange = (e)=>{ adminFilter.to = e.target.value; render(); };
+
+  const filtered = requests.filter(r=>{
+    if(adminFilter.name && !r.studentName.toLowerCase().includes(adminFilter.name.toLowerCase())) return false;
+    if(adminFilter.house && r.house!==adminFilter.house) return false;
+    if(adminFilter.category && r.category!==adminFilter.category) return false;
+    if(adminFilter.status){
+      if(adminFilter.status==='overdue'){ if(!isOverdue(r)) return false; }
+      else if(statusOf(r)!==adminFilter.status) return false;
+    }
+    if(adminFilter.from && r.departDate && r.departDate < adminFilter.from) return false;
+    if(adminFilter.to && r.departDate && r.departDate > adminFilter.to) return false;
+    return true;
+  }).sort((a,b)=>b.createdAt-a.createdAt);
+
+  const count = document.createElement('p'); count.className = 'section-sub';
+  count.textContent = filtered.length+' matching record(s)';
+  block.appendChild(count);
+
+  const ledger = document.createElement('div'); ledger.className = 'ledger';
+  if(filtered.length===0) ledger.appendChild(emptyState('No matches', 'Try adjusting the filters above.'));
+  else{
+    filtered.slice(0,25).forEach(r=>ledger.appendChild(passCard(r)));
+    if(filtered.length>25){
+      const more = document.createElement('p'); more.className = 'section-sub';
+      more.textContent = 'Showing first 25 of '+filtered.length+' — export CSV for the full list.';
+      ledger.appendChild(more);
+    }
+  }
+  block.appendChild(ledger);
+  container.appendChild(block);
+}
+
+function renderAdminSettings(container){
+  const block = document.createElement('div');
+  block.className = 'section-block';
+  block.appendChild(titleBlock('Policy settings', 'Term limit, escalation timing, semester start date and blackout periods.'));
+
+  const form = document.createElement('div'); form.className = 'form-grid';
+  form.innerHTML = `
+    <div class="field"><label>Max exeats per semester</label><input id="cfg-max" type="number" min="1" value="${config.maxPerSemester}"></div>
+    <div class="field"><label>Escalation window (hours)</label><input id="cfg-esc" type="number" min="1" value="${config.escalationHours}"></div>
+    <div class="field"><label>Semester start date</label><input id="cfg-start" type="date" value="${config.semesterStart}"></div>
+    <div class="form-actions"><button class="btn btn-primary" id="cfg-save">Save settings</button></div>
+  `;
+  block.appendChild(form);
+  form.querySelector('#cfg-save').onclick = async ()=>{
+    const {error} = await supabase.from('app_config').update({
+      max_per_semester: parseInt(form.querySelector('#cfg-max').value,10) || 3,
+      escalation_hours: parseInt(form.querySelector('#cfg-esc').value,10) || 12,
+      semester_start: form.querySelector('#cfg-start').value || config.semesterStart,
+    }).eq('id',1);
+    if(error){ showToast('Save failed: '+error.message); return; }
+    showToast('Settings saved');
+    await fetchAll(); render();
+  };
+
+  block.appendChild(Object.assign(document.createElement('div'), {innerHTML:'<h2 class="section-title" style="margin-top:22px;">Blackout / restricted periods</h2><p class="section-sub">Exam weeks or other dates when day/weekend exeats are blocked.</p>'}));
+  (config.blackouts||[]).forEach(b=>{
+    const row = document.createElement('div'); row.className = 'account-row';
+    row.innerHTML = `<span>${escapeHtml(b.label)} — ${b.start} to ${b.end}</span>`;
+    const delBtn = document.createElement('button'); delBtn.className = 'btn btn-ghost btn-sm'; delBtn.textContent = 'Remove';
+    delBtn.onclick = async ()=>{
+      const {error} = await supabase.from('blackout_periods').delete().eq('id', b.id);
+      if(error){ showToast('Delete failed: '+error.message); return; }
+      await fetchAll(); render();
+    };
+    row.appendChild(delBtn); block.appendChild(row);
+  });
+
+  const boForm = document.createElement('div'); boForm.className = 'form-grid'; boForm.style.marginTop = '12px';
+  boForm.innerHTML = `
+    <div class="field full"><label>Label</label><input id="bo-label" placeholder="e.g. End-of-term exams"></div>
+    <div class="field"><label>Start date</label><input id="bo-start" type="date"></div>
+    <div class="field"><label>End date</label><input id="bo-end" type="date"></div>
+    <div class="form-actions"><button class="btn btn-ghost" id="bo-add">Add blackout period</button></div>
+  `;
+  block.appendChild(boForm);
+  boForm.querySelector('#bo-add').onclick = async ()=>{
+    const label = boForm.querySelector('#bo-label').value.trim();
+    const start = boForm.querySelector('#bo-start').value;
+    const end = boForm.querySelector('#bo-end').value;
+    if(!label || !start || !end){ showToast('Fill in label, start and end date'); return; }
+    const {error} = await supabase.from('blackout_periods').insert({label, start_date:start, end_date:end});
+    if(error){ showToast('Add failed: '+error.message); return; }
+    showToast('Blackout period added');
+    await fetchAll(); render();
+  };
+  container.appendChild(block);
+}
+
+function renderStaffAccounts(container){
+  const block = document.createElement('div');
+  block.className = 'section-block';
+  block.appendChild(titleBlock('Staff accounts', 'Every house warden and gatekeeper has a separate Supabase Auth login. No shared logins.'));
+
+  staff.forEach(s=>{
+    const row = document.createElement('div'); row.className = 'account-row';
+    const loc = s.house_id ? s.house_id+' house' : (s.gate_post || '');
+    row.innerHTML = `<span><b>${escapeHtml(s.name)}</b> — ${s.role} ${loc ? '· '+escapeHtml(loc) : ''} ${s.must_change_password ? '<span class="mustchange">must change password</span>' : ''}</span>`;
+    const resetBtn = document.createElement('button'); resetBtn.className = 'btn btn-ghost btn-sm'; resetBtn.textContent = 'Reset password';
+    resetBtn.onclick = async ()=>{
+      const res = await callEdgeFunction('admin-reset-password', {staff_id:s.id});
+      if(res && res.ok) showToast(s.name+"'s password reset to: "+res.temp_password);
+      await fetchAll(); render();
+    };
+    row.appendChild(resetBtn); block.appendChild(row);
+  });
+
+  const addForm = document.createElement('div'); addForm.className = 'form-grid'; addForm.style.marginTop = '16px';
+  addForm.innerHTML = `
+    <div class="field"><label>Name</label><input id="sa-name" placeholder="Full name"></div>
+    <div class="field"><label>Email (for login)</label><input id="sa-email" type="email" placeholder="name@school.edu"></div>
+    <div class="field"><label>Role</label>
+      <select id="sa-role"><option value="warden">House warden</option><option value="gate">Gatekeeper</option><option value="admin">Admin</option></select>
+    </div>
+    <div class="field full"><label>House (wardens) or gate post (gatekeepers)</label><input id="sa-loc" placeholder="e.g. Falcon, or Main Gate"></div>
+    <div class="form-actions"><button class="btn btn-ghost" id="sa-add">Add staff account</button></div>
+  `;
+  block.appendChild(addForm);
+  addForm.querySelector('#sa-add').onclick = async ()=>{
+    const name = addForm.querySelector('#sa-name').value.trim();
+    const email = addForm.querySelector('#sa-email').value.trim();
+    const role = addForm.querySelector('#sa-role').value;
+    const loc = addForm.querySelector('#sa-loc').value.trim();
+    if(!name || !email){ showToast('Enter a name and email'); return; }
+    const res = await callEdgeFunction('admin-create-staff', {email, name, role, house_id: role==='warden'?loc:undefined, gate_post: role==='gate'?loc:undefined});
+    if(res && res.ok) showToast('Account created — temporary password: '+res.temp_password);
+    await fetchAll(); render();
+  };
+  container.appendChild(block);
+}
+
+async function callEdgeFunction(name, body){
+  if(!session || !session.accessToken){ showToast('Sign in as admin first'); return null; }
+  try{
+    const res = await fetch(SUPABASE_URL+'/functions/v1/'+name, {
+      method:'POST',
+      headers:{'Content-Type':'application/json', 'Authorization':'Bearer '+session.accessToken},
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if(!res.ok){ showToast('Error: '+(data.error||res.statusText)); return null; }
+    return data;
+  }catch(e){
+    showToast('Could not reach the Edge Function — is it deployed? See SETUP.md');
+    return null;
+  }
+}
+
+function renderNotifTemplatesRef(container){
+  const block = document.createElement('div');
+  block.className = 'section-block';
+  block.appendChild(titleBlock('Notification templates', 'These messages are logged in-app at each stage. To dispatch them as real SMS/email/push, wire this app to Twilio, SendGrid and Firebase Cloud Messaging.'));
+  const sample = {id:'p_sample', no:12, category:'weekend', studentName:'Sample Student', destination:'Home', reason:'Family visit', returnDate:todayISO(), returnTime:'18:00', denyReason:'clashes with prep', infoComment:'need updated pick-up contact'};
+  [
+    ['Submitted', NOTIF_TEMPLATES.submitted(sample)],
+    ['Warden approved', NOTIF_TEMPLATES.wardenApproved(sample)],
+    ['Admin approved', NOTIF_TEMPLATES.adminApproved(sample)],
+    ['Declined', NOTIF_TEMPLATES.denied(sample)],
+    ['Info requested', NOTIF_TEMPLATES.infoRequested(sample)],
+    ['Signed out', NOTIF_TEMPLATES.signedOut(sample)],
+    ['Signed in', NOTIF_TEMPLATES.signedIn(sample)],
+    ['Overdue', NOTIF_TEMPLATES.overdue(sample)],
+  ].forEach(([label,text])=>{
+    const d = document.createElement('div'); d.className = 'tmpl-box';
+    d.innerHTML = `<b>${label}</b>${escapeHtml(text)}`;
+    block.appendChild(d);
+  });
+  container.appendChild(block);
+}
+
+/* ============================= render ============================= */
+function render(){
+  renderConnectionBanner();
+  renderTabs();
+  renderBell();
+  renderNotifPanel();
+  const panel = document.getElementById('panel');
+  panel.innerHTML = '';
+  if(!loaded){ panel.appendChild(emptyState('Loading register…', 'Fetching the latest exeat passes.')); return; }
+  if(currentRole==='student') renderStudentPanel(panel);
+  else if(currentRole==='parent') renderParentPanel(panel);
+  else if(currentRole==='warden') renderWardenPanel(panel);
+  else if(currentRole==='admin') renderAdminPanel(panel);
+  else if(currentRole==='gate') renderGatePanel(panel);
+}
+
+document.getElementById('bell-btn').onclick = ()=>{ notifPanelOpen = !notifPanelOpen; render(); };
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{ navigator.serviceWorker.register('service-worker.js').catch(()=>{}); });
+}
+
+(async function init(){
+  render();
+  await fetchAll();
+  subscribeRealtime();
+  render();
+})();
+</script>
+</body>
+</html>
